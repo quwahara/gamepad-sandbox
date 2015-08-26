@@ -103,50 +103,50 @@ var rAF = window.mozRequestAnimationFrame ||
 
 function update() {
 
-    if(p0.pad()) {
-      binders.forEach(function(b) { b.eval() })
-    }
-
-    // Gamepad(Web API) 適当にテスト
-    // referenced http://qiita.com/gyabo/items/baae116e9e4c53ca17ab
-    // var pads = navigator.getGamepads ? navigator.getGamepads() :
-    //                (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
-    //
-    // //tekitou
-    // pads = pads[0];
-    // if(pads) {
-    //
-    //     //buttons
-    //     var but = [];
-    //     for(var i = 0 ; i < pads.buttons.length; i++) {
-    //         var val = pads.buttons[i];
-    //         var pressed = val == 1.0;
-    //         if (typeof(val) == "object") {
-    //             pressed = val.pressed;
-    //             val     = val.value;
-    //         }
-    //         but[i] = val;
-    //     }
-    //
-    //     var txt = [];
-    //     txt += pads.id + "<br>";
-    //     for(var i = 0 ; i < but.length; i++) {
-    //         if( but[i] == 1) {
-    //           txt += '<input type="checkbox" checked="checked">';
-    //         }
-    //         else {
-    //           txt += '<input type="checkbox" >';
-    //         }
-    //     }
-    //
-    //     var axes = pads.axes;
-    //     for(var i = 0 ; i < axes.length; i++) {
-    //         txt += '<br>';
-    //         txt += axes[i] ;
-    //     }
-    //     //console.log(axes);
-    //     document.getElementById("disp").innerHTML = txt;
+    // if(p0.pad()) {
+    //   binders.forEach(function(b) { b.eval() })
     // }
+
+    Gamepad(Web API) 適当にテスト
+    referenced http://qiita.com/gyabo/items/baae116e9e4c53ca17ab
+    var pads = navigator.getGamepads ? navigator.getGamepads() :
+                   (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+
+    //tekitou
+    pads = pads[0];
+    if(pads) {
+
+        //buttons
+        var but = [];
+        for(var i = 0 ; i < pads.buttons.length; i++) {
+            var val = pads.buttons[i];
+            var pressed = val == 1.0;
+            if (typeof(val) == "object") {
+                pressed = val.pressed;
+                val     = val.value;
+            }
+            but[i] = val;
+        }
+
+        var txt = [];
+        txt += pads.id + "<br>";
+        for(var i = 0 ; i < but.length; i++) {
+            if( but[i] == 1) {
+              txt += '<input type="checkbox" checked="checked">';
+            }
+            else {
+              txt += '<input type="checkbox" >';
+            }
+        }
+
+        var axes = pads.axes;
+        for(var i = 0 ; i < axes.length; i++) {
+            txt += '<br>';
+            txt += axes[i] ;
+        }
+        //console.log(axes);
+        document.getElementById("disp").innerHTML = txt;
+    }
     rAF(update);
 }
 
