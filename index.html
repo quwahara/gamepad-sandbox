@@ -103,9 +103,9 @@ var rAF = window.mozRequestAnimationFrame ||
 
 function update() {
 
-    // if(p0.pad()) {
-    //   binders.forEach(function(b) { b.eval() })
-    // }
+    if(p0.pad()) {
+      binders.forEach(function(b) { b.eval() })
+    }
 
     // Gamepad(Web API) 適当にテスト
     // referenced http://qiita.com/gyabo/items/baae116e9e4c53ca17ab
