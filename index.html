@@ -1,1 +1,156 @@
-Hi
+<html>
+<head>
+</head>
+<body>
+<svg id="world"></svg>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+<script type="text/javascript">
+
+var world = d3.select(document.getElementById("world"))
+.attr("width", 1000)
+.attr("height", 500)
+
+var rect = world
+.append("rect")
+.attr("x", 0)
+.attr("y", 0)
+.attr("width",  30)
+.attr("height", 30)
+.attr("fill", "blue")
+
+rect.dy = function(dy) {
+  rect.attr("y", Number(rect.attr("y")) + dy)
+}
+rect.dx = function(dx) {
+  rect.attr("x", Number(rect.attr("x")) + dx)
+}
+
+var GamepadWrapper = function() {
+  var t = this
+  t.gamepads =  navigator.getGamepads ? function() { return navigator.getGamepads(); } :
+                 (navigator.webkitGetGamepads ? function() { return navigator.webkitGetGamepads; } : function() { return []; });
+  t.gamepadsi = 0
+  t.ai = 0
+  t.bi = 1
+  t.xi = 2
+  t.yi = 3
+  t.ui = 12
+  t.ri = 15
+  t.di = 13
+  t.li = 14
+  t.lbi = 4
+  t.lti = 6
+  t.rbi = 5
+  t.rti = 7
+  t.axi = 0
+  t.ayi = 1
+  t.thresholds = {}
+  t.thresholds.ax = 0.2
+  t.thresholds.ay = 0.2
+
+  t.pad = function() {
+    return t.gamepads()[t.gamepadsi];
+  }
+  t.pressed = function(i) {
+    var val = t.pad().buttons[i]
+    var pressed = val == 1.0;
+    if (typeof(val) == "object") {
+        pressed = val.pressed;
+        val     = val.value;
+    }
+    return pressed ? 1 : 0;
+  }
+  t.u = function() { return -t.pressed(t.ui); }
+  t.r = function() { return t.pressed(t.ri); }
+  t.d = function() { return t.pressed(t.di); }
+  t.l = function() { return -t.pressed(t.li); }
+  t.axv = function() { return t.pad().axes[t.axi]; }
+  t.ax = function() { var v = t.axv(); return  Math.abs(v) > t.thresholds.ax ? v : false; }
+  t.ayv = function() { return t.pad().axes[t.ayi]; }
+  t.ay = function() { var v = t.ayv(); return  Math.abs(v) > t.thresholds.ay ? v : false; }
+}
+
+var p0 = new GamepadWrapper()
+
+var Binder = function(reporter, reactor) {
+  var t = this
+  t.reporter = reporter
+  t.reactor = reactor
+  t.eval = function() {
+    var context = t.reporter()
+    if(context) {
+      t.reactor(context)
+    }
+  }
+}
+
+var ration = 3.0
+
+var binders = [
+  new Binder(p0.u, rect.dy),
+  new Binder(p0.r, rect.dx),
+  new Binder(p0.d, rect.dy),
+  new Binder(p0.l, rect.dx),
+  new Binder(p0.ax, function(v) { rect.dx(v * ration)} ),
+  new Binder(p0.ay, function(v) { rect.dy(v * ration)} ),
+]
+
+//document.write('<font face="Lucida Console"><div id="disp"></div></font>');
+
+var rAF = window.mozRequestAnimationFrame ||
+          window.webkitRequestAnimationFrame ||
+          window.requestAnimationFrame;
+
+function update() {
+
+    binders.forEach(function(b) { b.eval() })
+
+    // Gamepad(Web API) 適当にテスト
+    // referenced http://qiita.com/gyabo/items/baae116e9e4c53ca17ab
+    // var pads = navigator.getGamepads ? navigator.getGamepads() :
+    //                (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+    //
+    // //tekitou
+    // pads = pads[0];
+    // if(pads) {
+    //
+    //     //buttons
+    //     var but = [];
+    //     for(var i = 0 ; i < pads.buttons.length; i++) {
+    //         var val = pads.buttons[i];
+    //         var pressed = val == 1.0;
+    //         if (typeof(val) == "object") {
+    //             pressed = val.pressed;
+    //             val     = val.value;
+    //         }
+    //         but[i] = val;
+    //     }
+    //
+    //     var txt = [];
+    //     txt += pads.id + "<br>";
+    //     for(var i = 0 ; i < but.length; i++) {
+    //         if( but[i] == 1) {
+    //           txt += '<input type="checkbox" checked="checked">';
+    //         }
+    //         else {
+    //           txt += '<input type="checkbox" >';
+    //         }
+    //     }
+    //
+    //     var axes = pads.axes;
+    //     for(var i = 0 ; i < axes.length; i++) {
+    //         txt += '<br>';
+    //         txt += axes[i] ;
+    //     }
+    //     //console.log(axes);
+    //     document.getElementById("disp").innerHTML = txt;
+    // }
+    rAF(update);
+}
+
+//Start
+rAF(update);
+
+</script>
+</body>
+</html>
