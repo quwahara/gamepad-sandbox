@@ -52,6 +52,10 @@ var GamepadWrapper = function() {
     return t.gamepads()[t.gamepadsi];
   }
   t.pressed = function(i) {
+    var p = t.pad()
+    if(!p || !p.buttons) {
+      return 0;
+    }
     var val = t.pad().buttons[i]
     var pressed = val == 1.0;
     if (typeof(val) == "object") {
