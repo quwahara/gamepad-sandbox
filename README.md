@@ -48,3 +48,6 @@ RT - 7
 
 Gamepad(Web API) 適当にテスト
 http://qiita.com/gyabo/items/baae116e9e4c53ca17ab
+
+61式戦車
+https://ja.wikipedia.org/wiki/61%E5%BC%8F%E6%88%A6%E8%BB%8A

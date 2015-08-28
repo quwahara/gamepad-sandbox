@@ -1,29 +1,117 @@
 <html>
 <head>
 </head>
-<body>
-<svg id="world"></svg>
+<body style="margin: 0 0 0 0;">
+<svg id="world"
+></svg>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
 <script type="text/javascript">
+
+
+var ppm = 10.0 / 3.0 // pixel per meter
+
 
 var world = d3.select(document.getElementById("world"))
 .attr("width", 1000)
 .attr("height", 500)
 
-var rect = world
-.append("rect")
-.attr("x", 0)
-.attr("y", 0)
-.attr("width",  30)
-.attr("height", 30)
-.attr("fill", "blue")
 
-rect.dy = function(dy) {
-  rect.attr("y", Number(rect.attr("y")) + dy)
+var rect = world
+.append("g")
+.attr("transform", "scale(" + ppm + ")")
+.append("rect")
+.attr("x", 50.0)
+.attr("y", 50.0)
+.attr("width",  2.95)
+.attr("height", 8.19)
+.attr("fill", "green")
+.property("rotate_angle", 0)
+
+var prop = function(holder, key) {
+    if(holder.prop === undefined) {
+        holder.prop = function(key) { return prop(holder, key); }
+    }
+    if(arguments.length === 1) {
+        return holder;
+    }
+    var p = function(v) {
+        if(arguments.length === 0) {
+            return p.o.call(p);
+        } else {
+            if("function" === typeof p.i) {
+                p.i.call(p, v)
+            }
+            return p.holder;
+        }
+    }
+    p.prop = function(key) { return prop(holder, key); }
+    p.holder = holder
+    p.v = null
+    p.o = function() { return p.v; }
+    p.i = function(v) { p.v = v }
+    p.setO = function(o) { p.o = o; return p; }
+    p.setI = function(i) { p.i = i; return p; }
+    p.key = key
+    // p.toJSON = function(){
+    //     if(p.propArray) {
+    //         return $.kevo(p.key,
+    //                 p.propArray.reduce(function(o,elm) {return Object.merge(o, elm.toJSON()); }, {})
+    //                 );
+    //     } else {
+    //         return $.kevo(p.key, p.o());
+    //     }
+    // }
+    holder[key] = p
+    if(holder.propArray === undefined) {
+        holder.propArray = []
+    }
+    holder.propArray.push(p)
+    // holder.copyValuesTo = function(dst) {
+    //     holder.propArray.each(function(elm){
+    //         if(Object.has(dst, elm.key)) {
+    //             if(elm.propArray) {
+    //                 elm.copyValuesTo(dst[elm.key])
+    //             } else {
+    //                 dst[elm.key](elm())
+    //             }
+    //         }
+    //     })
+    //     return dst;
+    // }
+    return p;
 }
+
+prop(rect)
+.prop("x")
+.setO(function() { return Number(this.holder.attr("x")); })
+.setI(function(v) { this.holder.attr("x", v) })
+.prop("y")
+.setO(function() { return Number(this.holder.attr("y")); })
+.setI(function(v) { this.holder.attr("y", v) })
+.prop("width")
+.setO(function() { return Number(this.holder.attr("width")); })
+.setI(function(v) { this.holder.attr("width", v) })
+.prop("height")
+.setO(function() { return Number(this.holder.attr("height")); })
+.setI(function(v) { this.holder.attr("height", v) })
+
 rect.dx = function(dx) {
-  rect.attr("x", Number(rect.attr("x")) + dx)
+  rect.x(rect.x() + dx)
+  rect.rotate(0)
 }
+rect.dy = function(dy) {
+  rect.y(rect.y() + dy)
+  rect.rotate(0)
+}
+rect.rotate = function(da) {
+  var ra = rect.property("rotate_angle") + da
+  rect.property("rotate_angle", ra)
+  var cx = rect.x() + rect.width() / 2.0,
+  cy = rect.y() + rect.height() /2.0
+  rect.attr("transform", "rotate(" + ra + "," + cx + "," + cy + ")")
+}
+
+
 
 var GamepadWrapper = function() {
   var t = this
@@ -91,7 +179,8 @@ var binders = [
   new Binder(p0.r, rect.dx),
   new Binder(p0.d, rect.dy),
   new Binder(p0.l, rect.dx),
-  new Binder(p0.ax, function(v) { rect.dx(v * ration)} ),
+  //new Binder(p0.ax, function(v) { rect.dx(v * ration)} ),
+  new Binder(p0.ax, function(v) { rect.rotate(v * ration)} ),
   new Binder(p0.ay, function(v) { rect.dy(v * ration)} ),
 ]
 
@@ -129,6 +218,7 @@ function update() {
         }
 
         var txt = [];
+        txt += "referenced http://qiita.com/gyabo/items/baae116e9e4c53ca17ab<br>";
         txt += pads.id + "<br>";
         for(var i = 0 ; i < but.length; i++) {
             if( but[i] == 1) {
